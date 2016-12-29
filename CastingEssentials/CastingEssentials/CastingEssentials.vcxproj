@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{32223B45-9C65-421A-A318-EB05D25ACA80}</ProjectGuid>
+    <RootNamespace>CastingEssentials</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Properties\Shared.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Properties\Shared.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "D:\Steam\steamapps\common\Team Fortress 2\tf\addons\$(TargetFileName)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AssemblyDebug>false</AssemblyDebug>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "D:\Steam\steamapps\common\Team Fortress 2\tf\addons\$(TargetFileName)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(SolutionDir)\sdk2013\mp\src\public\tier0\memoverride.cpp" />
+    <ClCompile Include="..\polyhook\PolyHook\PolyHook.cpp" />
+    <ClCompile Include="..\sdk2013\mp\src\public\vgui_controls\vgui_controls.cpp" />
+    <ClCompile Include="Controls\ImageProgressBar.cpp" />
+    <ClCompile Include="Controls\VariableLabel.cpp" />
+    <ClCompile Include="Hooking\IBaseHook.cpp" />
+    <ClCompile Include="Hooking\IGroupHook.cpp" />
+    <ClCompile Include="Misc\DebugOverlay.cpp" />
+    <ClCompile Include="Misc\MissingDefinitions.cpp" />
+    <ClCompile Include="Modules\Antifreeze.cpp" />
+    <ClCompile Include="Modules\CameraAutoSwitch.cpp" />
+    <ClCompile Include="Modules\CameraSmooths.cpp" />
+    <ClCompile Include="Modules\CameraState.cpp" />
+    <ClCompile Include="Modules\CameraTools.cpp" />
+    <ClCompile Include="Modules\ConsoleTools.cpp" />
+    <ClCompile Include="Modules\FOVOverride.cpp" />
+    <ClCompile Include="Modules\Killstreaks.cpp" />
+    <ClCompile Include="Modules\LocalPlayer.cpp" />
+    <ClCompile Include="Modules\MapConfigs.cpp" />
+    <ClCompile Include="Modules\MapFlythroughs.cpp" />
+    <ClCompile Include="Modules\MedigunInfo.cpp" />
+    <ClCompile Include="Modules\PlayerAliases.cpp" />
+    <ClCompile Include="Modules\ProjectileOutlines.cpp" />
+    <ClCompile Include="Modules\FreezeInfo.cpp" />
+    <ClCompile Include="Modules\SteamTools.cpp" />
+    <ClCompile Include="Modules\TeamNames.cpp" />
+    <ClCompile Include="PluginBase\CastingPlugin.cpp" />
+    <ClCompile Include="PluginBase\Common.cpp" />
+    <ClCompile Include="PluginBase\Entities.cpp" />
+    <ClCompile Include="PluginBase\HookManager.cpp" />
+    <ClCompile Include="PluginBase\Interfaces.cpp" />
+    <ClCompile Include="PluginBase\Modules.cpp" />
+    <ClCompile Include="PluginBase\Player.cpp" />
+    <ClCompile Include="Controls\StubPanel.cpp" />
+    <ClCompile Include="PluginBase\TFPlayerResource.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Controls\ImageProgressBar.h" />
+    <ClInclude Include="Controls\VariableLabel.h" />
+    <ClInclude Include="Hooking\BaseGroupHook.h" />
+    <ClInclude Include="Hooking\TemplateFunctions.h" />
+    <ClInclude Include="Hooking\GroupClassHook.h" />
+    <ClInclude Include="Hooking\GroupGlobalHook.h" />
+    <ClInclude Include="Hooking\GroupManualClassHook.h" />
+    <ClInclude Include="Hooking\GroupVirtualHook.h" />
+    <ClInclude Include="Hooking\HookFunctionsInvoker.h" />
+    <ClInclude Include="Hooking\IBaseHook.h" />
+    <ClInclude Include="Hooking\IGroupHook.h" />
+    <ClInclude Include="Hooking\TemplateTypedefs.h" />
+    <ClInclude Include="Hooking\VariablePusher.h" />
+    <ClInclude Include="Misc\DebugOverlay.h" />
+    <ClInclude Include="Misc\HLTVCameraHack.h" />
+    <ClInclude Include="Modules\Antifreeze.h" />
+    <ClInclude Include="Modules\CameraState.h" />
+    <ClInclude Include="Modules\CameraAutoSwitch.h" />
+    <ClInclude Include="Modules\CameraSmooths.h" />
+    <ClInclude Include="Modules\CameraTools.h" />
+    <ClInclude Include="Modules\ConsoleTools.h" />
+    <ClInclude Include="Modules\FOVOverride.h" />
+    <ClInclude Include="Modules\FreezeInfo.h" />
+    <ClInclude Include="Modules\Killstreaks.h" />
+    <ClInclude Include="Modules\LocalPlayer.h" />
+    <ClInclude Include="Modules\MapConfigs.h" />
+    <ClInclude Include="Modules\MapFlythroughs.h" />
+    <ClInclude Include="Modules\MedigunInfo.h" />
+    <ClInclude Include="Modules\PlayerAliases.h" />
+    <ClInclude Include="Modules\ProjectileOutlines.h" />
+    <ClInclude Include="Modules\SteamTools.h" />
+    <ClInclude Include="Modules\TeamNames.h" />
+    <ClInclude Include="PluginBase\Common.h" />
+    <ClInclude Include="PluginBase\Entities.h" />
+    <ClInclude Include="PluginBase\Exceptions.h" />
+    <ClInclude Include="PluginBase\HookManager.h" />
+    <ClInclude Include="PluginBase\Player.h" />
+    <ClInclude Include="Controls\StubPanel.h" />
+    <ClInclude Include="PluginBase\TFDefinitions.h" />
+    <ClInclude Include="PluginBase\Interfaces.h" />
+    <ClInclude Include="PluginBase\Modules.h" />
+    <ClInclude Include="PluginBase\Plugin.h" />
+    <ClInclude Include="PluginBase\TFPlayerResource.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
