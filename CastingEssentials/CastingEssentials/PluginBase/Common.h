@@ -3,14 +3,18 @@
 #include <dbg.h>
 #include <string>
 #include <steam/steamclientpublic.h>
+#include <mathlib/mathlib.h>
 
 #pragma warning(disable : 4592)		// 'x': symbol will be dynamically initialized (implementation limitation)
+#pragma warning(disable : 4533)		// initialization of 'x' is skipped by 'instruction' -- should only be a warning, but is promoted error for some reason?
 
 //#define PLUGIN_VERSION "r7b1"
 
 static constexpr const char* PLUGIN_NAME = "CastingEssentials";
 extern const char* const PLUGIN_VERSION_ID;
 extern const char* const PLUGIN_FULL_VERSION;
+
+#define VPROF_BUDGETGROUP_CE _T("CastingEssentials")
 
 static constexpr const char* s_ObserverModes[] =
 {
@@ -141,7 +145,7 @@ inline const char* stristr(const char* const searchThis, const char* const forTh
 	return (const char*)(searchThis + dist);
 }
 
-// Easing functions, see https://www.desmos.com/calculator/5s0csyhvm7 for live demo
+// Easing functions, see https://www.desmos.com/calculator/wist7qm16z for live demo
 inline float EaseOut(float x, float bias = 0.5)
 {
 	//Assert(x >= 0 && x <= 1);
@@ -154,9 +158,17 @@ inline float EaseIn(float x, float bias = 0.5)
 	//Assert(bias >= 0 && bias <= 1);
 	return std::pow(1 - std::pow(1 - x, bias), 1 / bias);
 }
+inline float EaseOut2(float x, float bias = 0.35)
+{
+	return 1 - std::pow(-x + 1, 1 / bias);
+}
 inline float EaseInSlope(float x, float bias = 0.5)
 {
 	return std::pow(1 - std::pow(1 - x, bias), (1 / bias) - 1) * std::pow(1 - x, bias - 1);
+}
+__forceinline float Bezier(float t, float x0, float x1, float x2)
+{
+	return Lerp(t, Lerp(t, x0, x1), Lerp(t, x1, x2));
 }
 
 inline float smoothstep(float x)
@@ -179,6 +191,9 @@ extern bool ParseVector(Vector& v, const char* str);
 extern bool ParseAngle(QAngle& a, const char* str);
 
 extern Vector GetViewOrigin();
+extern int GetConLine();
+
+Vector ApproachVector(const Vector& from, const Vector& to, float speed);
 
 template <typename T, std::size_t N> constexpr std::size_t arraysize(T const (&)[N]) noexcept { return N; }
 
@@ -211,3 +226,9 @@ private:
 	T* const m_Variable;
 	T m_OldValue;
 };
+
+// smh why were these omitted
+namespace std
+{
+	inline std::string to_string(const char* str) { return std::string(str); }
+}

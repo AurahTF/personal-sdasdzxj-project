@@ -18,6 +18,7 @@
 #include <toolframework/ienginetool.h>
 #include <util_shared.h>
 #include <client/c_baseanimating.h>
+#include <vprof.h>
 
 CameraTools::CameraTools()
 {
@@ -367,6 +368,7 @@ void CameraTools::SpecPlayer(int playerIndex)
 
 void CameraTools::OnTick(bool inGame)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	if (inGame)
 	{
 		if (ce_cameratools_show_mode->GetBool())
@@ -392,9 +394,9 @@ void CameraTools::OnTick(bool inGame)
 
 			if (mode >= 0)
 			{
-				Interfaces::GetEngineClient()->Con_NPrintf(0, "Current spec_mode: %i %s",
+				Interfaces::GetEngineClient()->Con_NPrintf(GetConLine(), "Current spec_mode: %i %s",
 					mode, mode >= 0 && mode < NUM_OBSERVER_MODES ? s_ObserverModes[mode] : "INVALID");
-				Interfaces::GetEngineClient()->Con_NPrintf(1, "Current target: %i%s",
+				Interfaces::GetEngineClient()->Con_NPrintf(GetConLine(), "Current target: %i%s",
 					target, target == 0 ? " (None)" : (strprintf(" (%s)", playerName.c_str())).c_str());
 			}
 		}
@@ -429,6 +431,7 @@ Vector CameraTools::CalcPosForAngle(const Vector& orbitCenter, const QAngle& ang
 
 bool CameraTools::SetupEngineViewOverride(Vector& origin, QAngle& angles, float& fov)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	m_ViewOverride = false;
 	if (!Interfaces::GetEngineClient()->IsHLTV())
 		return false;
@@ -565,6 +568,7 @@ void CameraTools::ChangeForceMode(IConVar *var, const char *pOldValue, float flO
 
 void CameraTools::SetModeOverride(int iMode)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	static ConVarRef spec_autodirector("spec_autodirector");
 	if (spec_autodirector.GetBool())
 	{
@@ -580,6 +584,7 @@ void CameraTools::SetModeOverride(int iMode)
 
 void CameraTools::SetPrimaryTargetOverride(int nEntity)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	const int forceTarget = m_ForceTarget->GetInt();
 
 	if (Interfaces::GetClientEntityList()->GetClientEntity(forceTarget))

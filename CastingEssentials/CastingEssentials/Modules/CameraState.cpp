@@ -3,6 +3,8 @@
 #include "Modules/CameraTools.h"
 #include "Modules/CameraSmooths.h"
 
+#include <vprof.h>
+
 #undef min
 #undef max
 
@@ -18,16 +20,17 @@ CameraState::CameraState()
 
 bool CameraState::InToolModeOverride()
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	m_LastFrameInToolMode = m_ThisFrameInToolMode;
 
 	m_ThisFrameInToolMode = false;
 
 	{
 		if (CameraTools::GetModule())
-			m_ThisFrameInToolMode = CameraTools::GetModule()->InToolModeOverride() || m_ThisFrameInToolMode;
+			m_ThisFrameInToolMode = static_cast<ICameraOverride*>(CameraTools::GetModule())->InToolModeOverride() || m_ThisFrameInToolMode;
 
 		if (CameraSmooths::GetModule())
-			m_ThisFrameInToolMode = CameraSmooths::GetModule()->InToolModeOverride() || m_ThisFrameInToolMode;
+			m_ThisFrameInToolMode = static_cast<ICameraOverride*>(CameraSmooths::GetModule())->InToolModeOverride() || m_ThisFrameInToolMode;
 	}
 
 	if (m_ThisFrameInToolMode)
@@ -38,16 +41,17 @@ bool CameraState::InToolModeOverride()
 
 bool CameraState::IsThirdPersonCameraOverride()
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	m_LastFrameIsThirdPerson = m_ThisFrameIsThirdPerson;
 
 	m_ThisFrameIsThirdPerson = false;
 
 	{
 		if (CameraTools::GetModule())
-			m_ThisFrameIsThirdPerson = CameraTools::GetModule()->IsThirdPersonCameraOverride() || m_ThisFrameIsThirdPerson;
+			m_ThisFrameIsThirdPerson = static_cast<ICameraOverride*>(CameraTools::GetModule())->IsThirdPersonCameraOverride() || m_ThisFrameIsThirdPerson;
 
 		if (CameraSmooths::GetModule())
-			m_ThisFrameIsThirdPerson = CameraTools::GetModule()->IsThirdPersonCameraOverride() || m_ThisFrameIsThirdPerson;
+			m_ThisFrameIsThirdPerson = static_cast<ICameraOverride*>(CameraSmooths::GetModule())->IsThirdPersonCameraOverride() || m_ThisFrameIsThirdPerson;
 	}
 
 	if (m_ThisFrameIsThirdPerson)
@@ -58,6 +62,7 @@ bool CameraState::IsThirdPersonCameraOverride()
 
 bool CameraState::SetupEngineViewOverride(Vector& origin, QAngle& angles, float& fov)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	m_LastFrameEngineView = m_ThisFrameEngineView;
 	m_LastFramePluginView = m_ThisFramePluginView;
 
@@ -66,12 +71,12 @@ bool CameraState::SetupEngineViewOverride(Vector& origin, QAngle& angles, float&
 
 	bool retVal = false;
 	if (CameraTools::GetModule())
-		retVal = CameraTools::GetModule()->SetupEngineViewOverride(origin, angles, fov) || retVal;
+		retVal = static_cast<ICameraOverride*>(CameraTools::GetModule())->SetupEngineViewOverride(origin, angles, fov) || retVal;
 
 	m_ThisFramePluginView.Set(origin, angles, fov);
 
 	if (CameraSmooths::GetModule())
-		retVal = CameraSmooths::GetModule()->SetupEngineViewOverride(origin, angles, fov) || retVal;
+		retVal = static_cast<ICameraOverride*>(CameraSmooths::GetModule())->SetupEngineViewOverride(origin, angles, fov) || retVal;
 
 	m_ThisFramePluginView.Set(origin, angles, fov);
 
@@ -83,6 +88,7 @@ bool CameraState::SetupEngineViewOverride(Vector& origin, QAngle& angles, float&
 
 void CameraState::OnTick(bool inGame)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	if (inGame)
 	{
 		if (!m_HooksAttached)

@@ -30,6 +30,10 @@ class C_BaseAnimating;
 class CStudioHdr;
 class CBoneCache;
 struct matrix3x4_t;
+class CGlowObjectManager;
+class CViewSetup;
+class CMatRenderContextPtr;
+class CHudTexture;
 
 class HookManager final
 {
@@ -53,6 +57,8 @@ class HookManager final
 		C_HLTVCamera_SetMode,
 		C_HLTVCamera_SetPrimaryTarget,
 
+		CHudBaseDeathNotice_GetIcon,
+
 		C_BaseAnimating_GetBoneCache,
 		C_BaseAnimating_LockStudioHdr,
 		C_BaseAnimating_LookupBone,
@@ -61,9 +67,12 @@ class HookManager final
 		C_BaseEntity_Init,
 		C_BaseEntity_CalcAbsolutePosition,
 
+		CGlowObjectManager_ApplyEntityGlowEffects,
+
 		Global_CreateEntityByName,
 		Global_GetLocalPlayerIndex,
 		Global_CreateTFGlowObject,
+		Global_UTILComputeEntityFade,
 
 		Count,
 	};
@@ -178,6 +187,9 @@ class HookManager final
 	typedef C_BaseEntity*(__cdecl *RawCreateEntityByNameFn)(const char* entityName);
 	typedef IClientNetworkable*(__cdecl *RawCreateTFGlowObjectFn)(int entNum, int serialNum);
 	typedef bool(__thiscall *RawBaseEntityInitFn)(C_BaseEntity* pThis, int entnum, int iSerialNum);
+	typedef unsigned char(__cdecl *RawUTILComputeEntityFadeFn)(C_BaseEntity* pEntity, float flMinDist, float flMaxDist, float flFadeScale);
+	typedef void(__thiscall *RawApplyEntityGlowEffectsFn)(CGlowObjectManager*, const CViewSetup*, int, CMatRenderContextPtr&, float, int, int, int, int);
+	typedef CHudTexture*(__stdcall *RawGetIconFn)(const char* szIcon, int eIconFormat);
 
 	static RawSetCameraAngleFn GetRawFunc_C_HLTVCamera_SetCameraAngle();
 	static RawSetModeFn GetRawFunc_C_HLTVCamera_SetMode();
@@ -190,6 +202,9 @@ class HookManager final
 	static RawGetLocalPlayerIndexFn GetRawFunc_Global_GetLocalPlayerIndex();
 	static RawCreateEntityByNameFn GetRawFunc_Global_CreateEntityByName();
 	static RawBaseEntityInitFn GetRawFunc_C_BaseEntity_Init();
+	static RawUTILComputeEntityFadeFn GetRawFunc_Global_UTILComputeEntityFade();
+	static RawApplyEntityGlowEffectsFn GetRawFunc_CGlowObjectManager_ApplyEntityGlowEffects();
+	static RawGetIconFn GetRawFunc_CHudBaseDeathNotice_GetIcon();
 
 public:
 	HookManager();
@@ -216,6 +231,8 @@ public:
 	typedef ClassHook<Func::C_HLTVCamera_SetMode, false, C_HLTVCamera, void, int> C_HLTVCamera_SetMode;
 	typedef ClassHook<Func::C_HLTVCamera_SetPrimaryTarget, false, C_HLTVCamera, void, int> C_HLTVCamera_SetPrimaryTarget;
 
+	typedef GlobalHook<Func::CHudBaseDeathNotice_GetIcon, false, CHudTexture*, const char*, int> CHudBaseDeathNotice_GetIcon;
+
 	typedef GlobalClassHook<Func::C_BaseAnimating_GetBoneCache, false, C_BaseAnimating, CBoneCache*, CStudioHdr*> C_BaseAnimating_GetBoneCache;
 	typedef GlobalClassHook<Func::C_BaseAnimating_LockStudioHdr, false, C_BaseAnimating, void> C_BaseAnimating_LockStudioHdr;
 	typedef GlobalClassHook<Func::C_BaseAnimating_LookupBone, false, C_BaseAnimating, int, const char*> C_BaseAnimating_LookupBone;
@@ -224,9 +241,12 @@ public:
 	typedef GlobalClassHook<Func::C_BaseEntity_Init, false, C_BaseEntity, bool, int, int> C_BaseEntity_Init;
 	typedef GlobalClassHook<Func::C_BaseEntity_CalcAbsolutePosition, false, C_BaseEntity, void> C_BaseEntity_CalcAbsolutePosition;
 
+	typedef GlobalClassHook<Func::CGlowObjectManager_ApplyEntityGlowEffects, false, CGlowObjectManager, void, const CViewSetup*, int, CMatRenderContextPtr&, float, int, int, int, int> CGlowObjectManager_ApplyEntityGlowEffects;
+
 	typedef GlobalHook<Func::Global_GetLocalPlayerIndex, false, int> Global_GetLocalPlayerIndex;
 	typedef GlobalHook<Func::Global_CreateEntityByName, false, C_BaseEntity*, const char*> Global_CreateEntityByName;
 	typedef GlobalHook<Func::Global_CreateTFGlowObject, false, IClientNetworkable*, int, int> Global_CreateTFGlowObject;
+	typedef GlobalHook<Func::Global_UTILComputeEntityFade, false, unsigned char, C_BaseEntity*, float, float, float> Global_UTILComputeEntityFade;
 
 	template<class Hook> typename Hook::Functional GetFunc() { static_assert(false, "Invalid hook type"); }
 
@@ -245,6 +265,8 @@ public:
 	template<> C_HLTVCamera_SetPrimaryTarget* GetHook<C_HLTVCamera_SetPrimaryTarget>() { return &m_Hook_C_HLTVCamera_SetPrimaryTarget; }
 	template<> C_BaseEntity_Init* GetHook<C_BaseEntity_Init>() { return &m_Hook_C_BaseEntity_Init; }
 	template<> Global_GetLocalPlayerIndex* GetHook<Global_GetLocalPlayerIndex>() { return &m_Hook_Global_GetLocalPlayerIndex; }
+	template<> Global_UTILComputeEntityFade* GetHook<Global_UTILComputeEntityFade>() { return &m_Hook_Global_UTILComputeEntityFade; }
+	template<> CGlowObjectManager_ApplyEntityGlowEffects* GetHook<CGlowObjectManager_ApplyEntityGlowEffects>() { return &m_Hook_CGlowObjectManager_ApplyEntityGlowEffects; }
 
 	template<class Hook> int AddHook(const typename Hook::Functional& hook)
 	{
@@ -301,6 +323,8 @@ private:
 	C_BaseEntity_Init m_Hook_C_BaseEntity_Init;
 
 	Global_GetLocalPlayerIndex m_Hook_Global_GetLocalPlayerIndex;
+	Global_UTILComputeEntityFade m_Hook_Global_UTILComputeEntityFade;
+	CGlowObjectManager_ApplyEntityGlowEffects m_Hook_CGlowObjectManager_ApplyEntityGlowEffects;
 
 	void IngameStateChanged(bool inGame);
 	class Panel;
@@ -329,6 +353,8 @@ using C_HLTVCamera_SetCameraAngle = HookManager::C_HLTVCamera_SetCameraAngle;
 using C_HLTVCamera_SetMode = HookManager::C_HLTVCamera_SetMode;
 using C_HLTVCamera_SetPrimaryTarget = HookManager::C_HLTVCamera_SetPrimaryTarget;
 
+using CHudBaseDeathNotice_GetIcon = HookManager::CHudBaseDeathNotice_GetIcon;
+
 using C_BaseAnimating_GetBoneCache = HookManager::C_BaseAnimating_GetBoneCache;
 using C_BaseAnimating_LockStudioHdr = HookManager::C_BaseAnimating_LockStudioHdr;
 using C_BaseAnimating_LookupBone = HookManager::C_BaseAnimating_LookupBone;
@@ -337,9 +363,12 @@ using C_BaseAnimating_GetBonePosition = HookManager::C_BaseAnimating_GetBonePosi
 using C_BaseEntity_Init = HookManager::C_BaseEntity_Init;
 using C_BaseEntity_CalcAbsolutePosition = HookManager::C_BaseEntity_CalcAbsolutePosition;
 
+using CGlowObjectManager_ApplyEntityGlowEffects = HookManager::CGlowObjectManager_ApplyEntityGlowEffects;
+
 using Global_GetLocalPlayerIndex = HookManager::Global_GetLocalPlayerIndex;
 using Global_CreateEntityByName = HookManager::Global_CreateEntityByName;
 using Global_CreateTFGlowObject = HookManager::Global_CreateTFGlowObject;
+using Global_UTILComputeEntityFade = HookManager::Global_UTILComputeEntityFade;
 
 extern void* SignatureScan(const char* moduleName, const char* signature, const char* mask);
 extern HookManager* GetHooks();
@@ -361,6 +390,13 @@ template<> inline C_HLTVCamera_SetPrimaryTarget::Functional HookManager::GetFunc
 	return std::bind(
 		[](RawSetPrimaryTargetFn func, C_HLTVCamera* pThis, int target) { func(pThis, target); },
 		GetRawFunc_C_HLTVCamera_SetPrimaryTarget(), GetHLTVCamera(), std::placeholders::_1);
+}
+
+template<> inline CHudBaseDeathNotice_GetIcon::Functional HookManager::GetFunc<CHudBaseDeathNotice_GetIcon>()
+{
+	return std::bind(
+		GetRawFunc_CHudBaseDeathNotice_GetIcon(),
+		std::placeholders::_1, std::placeholders::_2);
 }
 
 template<> inline C_BaseAnimating_GetBoneCache::Functional HookManager::GetFunc<C_BaseAnimating_GetBoneCache>()
@@ -393,6 +429,13 @@ template<> inline C_BaseEntity_CalcAbsolutePosition::Functional HookManager::Get
 	return std::bind(
 		[](RawCalcAbsolutePositionFn func, C_BaseEntity* pThis) { func(pThis); },
 		GetRawFunc_C_BaseEntity_CalcAbsolutePosition(), std::placeholders::_1);
+}
+
+template<> inline CGlowObjectManager_ApplyEntityGlowEffects::Functional HookManager::GetFunc<CGlowObjectManager_ApplyEntityGlowEffects>()
+{
+	return std::bind(
+		[](RawApplyEntityGlowEffectsFn func, CGlowObjectManager* pThis, const CViewSetup* pSetup, int nSplitScreenSlot, CMatRenderContextPtr& pRenderContext, float flBloomScale, int x, int y, int w, int h) { return func(pThis, pSetup, nSplitScreenSlot, pRenderContext, flBloomScale, x, y, w, h); },
+		GetRawFunc_CGlowObjectManager_ApplyEntityGlowEffects(), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8, std::placeholders::_9);
 }
 
 template<> inline Global_GetLocalPlayerIndex::Functional HookManager::GetFunc<Global_GetLocalPlayerIndex>()

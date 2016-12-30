@@ -23,6 +23,7 @@
 #include <client/iclientmode.h>
 #include <KeyValues.h>
 #include <client/c_basecombatweapon.h>
+#include <vprof.h>
 
 #include <vector>
 
@@ -68,6 +69,7 @@ private:
 
 	bool alive;
 	int charges;
+	int charge;
 	float level;
 	TFMedigun medigun;
 	bool released;
@@ -103,25 +105,25 @@ bool MedigunInfo::CheckDependencies()
 		ready = false;
 	}
 
-	if (!Entities::RetrieveClassPropOffset("CWeaponMedigun", { "m_iItemDefinitionIndex" }))
+	if (Entities::RetrieveClassPropOffset("CWeaponMedigun", "m_iItemDefinitionIndex") < 0)
 	{
 		PluginWarning("Required property m_iItemDefinitionIndex for CWeaponMedigun for module %s not available!\n", GetModuleName());
 		ready = false;
 	}
 
-	if (!Entities::RetrieveClassPropOffset("CWeaponMedigun", { "m_bChargeRelease" }))
+	if (Entities::RetrieveClassPropOffset("CWeaponMedigun", "m_bChargeRelease") < 0)
 	{
 		PluginWarning("Required property m_bChargeRelease for CWeaponMedigun for module %s not available!\n", GetModuleName());
 		ready = false;
 	}
 
-	if (!Entities::RetrieveClassPropOffset("CWeaponMedigun", { "m_nChargeResistType" }))
+	if (Entities::RetrieveClassPropOffset("CWeaponMedigun", "m_nChargeResistType") < 0)
 	{
 		PluginWarning("Required property m_nChargeResistType for CWeaponMedigun for module %s not available!\n", GetModuleName());
 		ready = false;
 	}
 
-	if (!Entities::RetrieveClassPropOffset("CWeaponMedigun", { "m_flChargeLevel" }))
+	if (Entities::RetrieveClassPropOffset("CWeaponMedigun", "m_flChargeLevel") < 0)
 	{
 		PluginWarning("Required property m_flChargeLevel for CWeaponMedigun for module %s not available!\n", GetModuleName());
 		ready = false;
@@ -147,6 +149,7 @@ bool MedigunInfo::CheckDependencies()
 
 void MedigunInfo::OnTick(bool inGame)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	if (inGame && enabled->GetBool())
 	{
 		if (!m_MainPanel)
@@ -230,6 +233,7 @@ void MedigunInfo::MainPanel::LoadControlSettings(const char *dialogResourceName,
 
 void MedigunInfo::MainPanel::OnTick()
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	vgui::EditablePanel::OnTick();
 
 	size_t bluMediguns = 0;
@@ -360,6 +364,7 @@ void MedigunInfo::MainPanel::OnTick()
 
 void MedigunInfo::MedigunPanel::OnMedigunInfoUpdate(KeyValues *attributes)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	bool reloadSettings = (alive != attributes->GetBool("alive") || charges != attributes->GetInt("charges") || medigun != (TFMedigun)attributes->GetInt("medigun") || released != attributes->GetBool("released") || resistType != (TFResistType)attributes->GetInt("resistType") || team != (TFTeam)attributes->GetInt("team"));
 
 	alive = attributes->GetBool("alive");
@@ -375,7 +380,10 @@ void MedigunInfo::MedigunPanel::OnMedigunInfoUpdate(KeyValues *attributes)
 
 	// TODO: set up a custom message that doesn't spam a bunch of DialogVariables messages, forcing the panel to redraw 5 or 6 times.
 
-	SetDialogVariable("charge", int(floor(level * 100.0f)));
+	const int newCharge = int(floor(level * 100.0f));
+	if (charge != newCharge)
+		SetDialogVariable("charge", charge = newCharge);
+
 	if (medigun == TFMedigun::Vaccinator)
 	{
 		SetDialogVariable("charges", int(floor(level * 4.0f)));
@@ -388,6 +396,7 @@ void MedigunInfo::MedigunPanel::OnMedigunInfoUpdate(KeyValues *attributes)
 
 void MedigunInfo::MedigunPanel::OnReloadControlSettings(KeyValues *attributes)
 {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_CE);
 	KeyValues *conditions = new KeyValues("conditions");
 
 	if (alive)

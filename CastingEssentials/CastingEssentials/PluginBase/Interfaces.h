@@ -20,6 +20,8 @@ class IFileSystem;
 class IVDebugOverlay;
 class IEngineTrace;
 class ISpatialPartition;
+class IMaterialSystem;
+class IShaderAPI;
 
 class Interfaces final
 {
@@ -41,11 +43,19 @@ public:
 
 	// #include <toolframework/ienginetool.h>
 	static IEngineTool* GetEngineTool() { return pEngineTool; }
+
+	// #include <igameevents.h>
 	static IGameEventManager2* GetGameEventManager() { return pGameEventManager; }
 
 	// #include <iprediction.h>
 	static IPrediction* GetPrediction() { return pPrediction; }
 	static IVModelInfoClient* GetModelInfoClient() { return pModelInfoClient; }
+
+	// #include <imaterialsystem.h>
+	static IMaterialSystem* GetMaterialSystem() { return pMaterialSystem; }
+
+	// #include <shaderapi/ishaderapi.h>
+	static IShaderAPI* GetShaderAPI() { return s_ShaderAPI; }
 
 	// #include <ivrenderview.h>
 	static IVRenderView* GetRenderView() { return pRenderView; }
@@ -83,6 +93,8 @@ private:
 	static IGameEventManager2 *pGameEventManager;
 	static IVModelInfoClient *pModelInfoClient;
 	static IPrediction *pPrediction;
+	static IMaterialSystem* pMaterialSystem;
+	static IShaderAPI* s_ShaderAPI;
 	static IVRenderView *pRenderView;
 	static CSteamAPIContext *pSteamAPIContext;
 	static IFileSystem* s_FileSystem;
